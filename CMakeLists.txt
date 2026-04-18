@@ -12,9 +12,9 @@ add_library(klang_core STATIC)
 
 target_compile_features(klang_core PUBLIC cxx_std_20)
 
-target_include_directories(klang_core
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
+target_include_directories(
+    klang_core
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 if(MSVC)
@@ -27,12 +27,12 @@ add_executable(klang_cli)
 target_link_libraries(klang_cli PRIVATE klang_core)
 
 add_subdirectory(lexer)
-# add_subdirectory(parser)
-# add_subdirectory(ast)
-# add_subdirectory(compiler)
-# add_subdirectory(debug)
-# add_subdirectory(vm)
-# add_subdirectory(cli)
+add_subdirectory(parser)
+add_subdirectory(ast)
+add_subdirectory(compiler)
+add_subdirectory(debug)
+add_subdirectory(vm)
+add_subdirectory(cli)
 
 if(KLANG_BUILD_TESTS)
     enable_testing()
