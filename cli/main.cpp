@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <optional>
 #include <string_view>
 
 namespace fs = std::filesystem;
@@ -57,14 +58,30 @@ const CommandSpec* find_command(std::string_view name) {
     return nullptr;
 }
 
-int handle_lex(const CommandContext& ctx) {
-    fs::path p(ctx.argv[2]);
-    if (!fs::exists(p)) {
+static std::optional<fs::path> validate_kl_source(const char* arg) {
+    fs::path file_path(arg);
+    if (!fs::exists(file_path)) {
         std::cerr << "Invalid File Path\n";
-        return handle_help(ctx);
+        return std::nullopt;
     }
+    if (file_path.extension() != ".kl") {
+        std::cerr << "Invalid file\n";
+        return std::nullopt;
+    }
+    if (!fs::is_regular_file(file_path)) {
+        std::cerr << "Path is not a regular file\n";
+        return std::nullopt;
+    }
+    return file_path;
+}
 
-    std::ifstream file(p);
+int handle_lex(const CommandContext& ctx) {
+    std::optional<fs::path> file_check = validate_kl_source(ctx.argv[2]);
+    if (file_check == std::nullopt) {
+        return 1;
+    }
+    fs::path file_path = file_check.value();
+    std::ifstream file(file_path);
     Lexer lexer;
     if (file.is_open()) {
         std::string line;
@@ -75,10 +92,12 @@ int handle_lex(const CommandContext& ctx) {
     }
     return 0;
 }
+
 int handle_version(const CommandContext& ctx) {
     std::cout << "klang 0.1.0\n";
     return 0;
 }
+
 int handle_help(const CommandContext& ctx) {
     std::cout << "klang <command> [args]\n\nCommands:\n";
     for (const auto& cmd : kCommands) {
@@ -86,38 +105,47 @@ int handle_help(const CommandContext& ctx) {
     }
     return 0;
 }
+
 int handle_run(const CommandContext& ctx) {
     std::cout << "run\n";
     return 0;
 }
+
 int handle_check(const CommandContext& ctx) {
     std::cout << "check\n";
     return 0;
 }
+
 int handle_parse(const CommandContext& ctx) {
     std::cout << "parse\n";
     return 0;
 }
+
 int handle_dis(const CommandContext& ctx) {
     std::cout << "disassemble\n";
     return 0;
 }
+
 int handle_ast(const CommandContext& ctx) {
     std::cout << "ast\n";
     return 0;
 }
+
 int handle_fmt(const CommandContext& ctx) {
     std::cout << "fmt\n";
     return 0;
 }
+
 int handle_compile(const CommandContext& ctx) {
     std::cout << "compile\n";
     return 0;
 }
+
 int handle_exec(const CommandContext& ctx) {
     std::cout << "exec\n";
     return 0;
 }
+
 int handle_repl(const CommandContext& ctx) {
     std::cout << "repl\n";
     return 0;

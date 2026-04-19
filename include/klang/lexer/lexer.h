@@ -3,25 +3,20 @@
 #include <string>
 #include <vector>
 
-class Lexer
-{
-private:
-    enum TokenType
-    {
+class Lexer {
+   public:
+    enum TokenType {
         Number,
         Identifier,
         OpenParen,
         ClostParen,
         BinaryOperator,
-        Let,
         Equals
     };
-    struct Token
-    {
+    struct Token {
         std::string value;
         TokenType token;
     };
 
-public:
-    std::vector<Token> tokenize(std::string &source_code);
+    std::vector<Token> tokenize(std::string& source_code);
 };
