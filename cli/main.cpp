@@ -32,22 +32,26 @@ int handle_repl(const CommandContext&);
 struct CommandSpec {
     std::string_view name;
     std::string_view description;
+    std::string_view usage;
     CommandHandler handler;
 };
 
 constexpr std::array<CommandSpec, 12> kCommands{
-    {{"help", "Show help", handle_help},
-     {"version", "Show version", handle_version},
-     {"lex", "Tokenize a source file", handle_lex},
-     {"run", "Run a source file", handle_run},
-     {"check", "Validate a source file", handle_check},
-     {"parse", "Parse a source file", handle_parse},
-     {"dis", "Disassemble bytecode", handle_dis},
-     {"ast", "Print AST for the source file", handle_ast},
-     {"fmt", "Format a source file", handle_fmt},
-     {"compile", "Compile source to bytecode", handle_compile},
-     {"exec", "Execute bytecode file", handle_exec},
-     {"repl", "Start interactive REPL", handle_repl}}};
+    {{"help", "Show help", "klang help", handle_help},
+     {"version", "Show version", "klang version", handle_version},
+     {"lex", "Tokenize a source file", "klang lex <filepath>", handle_lex},
+     {"run", "Run a source file", "klang run <filepath>", handle_run},
+     {"check", "Validate a source file", "klang check <filepath>",
+      handle_check},
+     {"parse", "Parse a source file", "klang parse <filepath>", handle_parse},
+     {"dis", "Disassemble bytecode", "klang dis <filepath>", handle_dis},
+     {"ast", "Print AST for the source file", "klang ast <filepath>",
+      handle_ast},
+     {"fmt", "Format a source file", "klang fmt <filepath>", handle_fmt},
+     {"compile", "Compile source to bytecode", "klang compile <filepath>",
+      handle_compile},
+     {"exec", "Execute bytecode file", "klang exec <filepath>", handle_exec},
+     {"repl", "Start interactive REPL", "klang repl", handle_repl}}};
 
 const CommandSpec* find_command(std::string_view name) {
     for (const auto& cmd : kCommands) {
@@ -75,20 +79,40 @@ static std::optional<fs::path> validate_kl_source(const char* arg) {
     return file_path;
 }
 
+void print_cmd_help(const CommandContext& ctx) {
+    std::string_view command_name = ctx.argv[1];
+    const CommandSpec* cmd = find_command(command_name);
+    std::cout << "Error: Invalid file\n";
+    std::cout << "Usage:\n";
+    std::cout << "      " << cmd->usage << "\n";
+}
+
 int handle_lex(const CommandContext& ctx) {
+    if (ctx.argc < 3) {
+        print_cmd_help(ctx);
+        return 1;
+    }
     std::optional<fs::path> file_check = validate_kl_source(ctx.argv[2]);
     if (file_check == std::nullopt) {
+        print_cmd_help(ctx);
         return 1;
     }
     fs::path file_path = file_check.value();
     std::ifstream file(file_path);
-    Lexer lexer;
+    std::string source_code = "";
     if (file.is_open()) {
         std::string line;
         while (std::getline(file, line)) {
-            lexer.tokenize(line);
+            source_code += line;
+            source_code += '\n';
         }
         file.close();
+    }
+    Lexer lexer;
+    std::vector<Lexer::Token> tokens = lexer.tokenize(source_code);
+    for (auto i : tokens) {
+        std::cout << i.identity.lexeme << " " << i.span.line << " "
+                  << i.span.col << "\n";
     }
     return 0;
 }
