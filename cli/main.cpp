@@ -92,24 +92,13 @@ int handle_lex(const CommandContext& ctx) {
         print_cmd_help(ctx);
         return 1;
     }
-    std::optional<fs::path> file_check = validate_kl_source(ctx.argv[2]);
-    if (file_check == std::nullopt) {
+    auto file_path = validate_kl_source(ctx.argv[2]);
+    if (!file_path) {
         print_cmd_help(ctx);
         return 1;
     }
-    fs::path file_path = file_check.value();
-    std::ifstream file(file_path);
-    std::string source_code = "";
-    if (file.is_open()) {
-        std::string line;
-        while (std::getline(file, line)) {
-            source_code += line;
-            source_code += '\n';
-        }
-        file.close();
-    }
-    Lexer lexer;
-    std::vector<Lexer::Token> tokens = lexer.tokenize(source_code);
+    Lexer lexer(file_path.value());
+    std::vector<Lexer::Token> tokens = lexer.tokenize();
     for (auto i : tokens) {
         std::cout << i.identity.lexeme << " " << i.span.line << " "
                   << i.span.col << "\n";

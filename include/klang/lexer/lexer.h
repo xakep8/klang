@@ -2,12 +2,22 @@
 
 #include <array>
 #include <cstddef>
+#include <filesystem>
 #include <string>
 #include <string_view>
 #include <vector>
 
+namespace fs = std::filesystem;
+
 class Lexer {
    public:
+    enum class State : uint32_t {
+        Function,
+        Header,
+        Identifier,
+        Comment,
+    };
+
     enum class TokenType {
         Number,
         Identifier,
@@ -97,8 +107,14 @@ class Lexer {
          {"char", TokenType::KeywordChar},
          {"array", TokenType::KeywordArray}}};
 
-    static std::vector<Token> tokenize(std::string_view source_code);
+    std::vector<Token> tokenize();
+    Lexer(const fs::path file_path);
+    Lexer() = delete;
+    ~Lexer() = default;
 
    private:
-    static TokenIdentity flush_lexeme(std::string_view lexeme);
+    std::string m_source;
+    fs::path m_file_path;
+    TokenIdentity flush_lexeme(std::string_view lexeme);
+    std::string peek();
 };
