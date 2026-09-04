@@ -1,6 +1,6 @@
-#include <stdexcept>
+#include "klang/utils/SmallVector.h"
 
-#include "klang/utils/unique_vector.h"
+#include <stdexcept>
 
 template <typename T>
 SmallVector<T>::SmallVector(const std::size_t size) {
