@@ -49,7 +49,7 @@ std::vector<Lexer::Token> Lexer::tokenize() {
                     tokens.push_back({flush_lexeme(lexeme),
                                       {line_itr, col_itr - lexeme.size()}});
                 }
-                std::string_view symbol = m_source.substr(i, 1);
+                std::string symbol = m_source.substr(i, 1);
                 tokens.push_back({flush_lexeme(symbol), {line_itr, col_itr}});
                 lexeme = "";
                 col_itr++;

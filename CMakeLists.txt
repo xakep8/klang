@@ -36,6 +36,7 @@ add_subdirectory(compiler)
 add_subdirectory(debug)
 add_subdirectory(vm)
 add_subdirectory(cli)
+add_subdirectory(utils)
 
 if(KLANG_BUILD_TESTS)
     enable_testing()
