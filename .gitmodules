@@ -1,0 +1,3 @@
+[submodule "mem_pool_allocator"]
+	path = mem_pool_allocator
+	url = https://github.com/xakep8/mem_pool_allocator.git

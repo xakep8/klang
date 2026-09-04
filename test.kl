@@ -1,3 +1,9 @@
-!# /bin/bash
+#include <iostream>
 
-hello kaise ho
+#define getarr(x) for(auto &i:x) cin>>i;
+
+int main() {
+  int a = 10;
+  int b = &a;
+  return 0;
+}

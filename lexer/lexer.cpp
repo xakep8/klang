@@ -1,6 +1,6 @@
 #include <klang/lexer/lexer.h>
 
-#include <iostream>
+#include <fstream>
 
 Lexer::TokenIdentity Lexer::flush_lexeme(std::string_view lexeme) {
     for (const auto& token : token_list) {
@@ -11,13 +11,28 @@ Lexer::TokenIdentity Lexer::flush_lexeme(std::string_view lexeme) {
     return {std::string(lexeme), TokenType::Identifier};
 }
 
-std::vector<Lexer::Token> Lexer::tokenize(std::string_view source_code) {
+Lexer::Lexer(const fs::path file_path) {
+    m_file_path = file_path;
+    std::ifstream file(file_path);
+    std::string source_code = "";
+    if (file.is_open()) {
+        std::string line;
+        while (std::getline(file, line)) {
+            source_code += line;
+            source_code += '\n';
+        }
+        file.close();
+    }
+    m_source = source_code;
+}
+
+std::vector<Lexer::Token> Lexer::tokenize() {
     std::vector<Token> tokens;
     size_t line_itr = 1;
     size_t col_itr = 1;
     std::string lexeme = "";
-    for (size_t i{0uz}; i < source_code.size(); i++) {
-        if (source_code[i] == '\n') {
+    for (size_t i{0uz}; i < m_source.size(); i++) {
+        if (m_source[i] == '\n') {
             if (!lexeme.empty()) {
                 tokens.push_back({flush_lexeme(lexeme),
                                   {line_itr, col_itr - lexeme.size()}});
@@ -25,16 +40,16 @@ std::vector<Lexer::Token> Lexer::tokenize(std::string_view source_code) {
             lexeme = "";
             col_itr = 1;
             line_itr++;
-        } else if (!isspace(static_cast<unsigned char>(source_code[i]))) {
-            if (isalnum(static_cast<unsigned char>(source_code[i]))) {
-                lexeme += source_code[i];
+        } else if (!isspace(static_cast<unsigned char>(m_source[i]))) {
+            if (isalnum(static_cast<unsigned char>(m_source[i]))) {
+                lexeme += m_source[i];
                 col_itr++;
             } else {
                 if (!lexeme.empty()) {
                     tokens.push_back({flush_lexeme(lexeme),
                                       {line_itr, col_itr - lexeme.size()}});
                 }
-                std::string_view symbol = source_code.substr(i, 1);
+                std::string_view symbol = m_source.substr(i, 1);
                 tokens.push_back({flush_lexeme(symbol), {line_itr, col_itr}});
                 lexeme = "";
                 col_itr++;

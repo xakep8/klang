@@ -23,6 +23,9 @@ else()
     target_compile_options(klang_core PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
+add_subdirectory(mem_pool_allocator)
+target_link_libraries(klang_core PUBLIC mem_pool_allocator_lib)
+
 add_executable(klang_cli)
 target_link_libraries(klang_cli PRIVATE klang_core)
 
