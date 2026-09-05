@@ -116,5 +116,4 @@ class Lexer {
     std::string m_source;
     fs::path m_file_path;
     TokenIdentity flush_lexeme(std::string_view lexeme);
-    std::string peek();
 };
